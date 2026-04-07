@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.idea/
+.vs/
+.vscode/
+*.iml
+.DS_Store
+.env
+.env.*
+foundryconfig.json

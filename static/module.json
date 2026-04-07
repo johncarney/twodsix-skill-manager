@@ -1,0 +1,28 @@
+{
+  "id": "skill-manager",
+  "title": "Skill Manager",
+  "description": "A Foundry VTT module for managing skills.",
+  "authors": [
+    {
+      "name": "John Carney"
+    }
+  ],
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "14"
+  },
+  "esmodules": ["module.js"],
+  "styles": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "systems": [],
+    "requires": []
+  }
+}

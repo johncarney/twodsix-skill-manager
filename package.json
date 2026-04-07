@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name": "skill-manager",
+  "version": "0.1.0",
+  "description": "A Foundry VTT module for managing skills",
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "watch": "vite build --watch --mode development",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#2315d2385e256f8e7011667683f0859f1f769fdf",
+    "@types/jquery": "^4.0.0",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-prettier": "^5.5.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.8.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.58.0",
+    "vite": "^8.0.0"
+  }
+}
