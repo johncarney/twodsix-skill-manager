@@ -1,4 +1,4 @@
-export const MODULE_ID = "skill-manager";
+export const MODULE_ID = "twodsix-skill-manager";
 
 interface SkillSystem {
   value: number;

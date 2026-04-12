@@ -1,6 +1,6 @@
-# Skill Manager
+# Twodsix Skill Manager
 
-A Foundry VTT module for managing skills.
+A Foundry VTT module for managing skills in the Twodsix game system.
 
 ## Prerequisites
 
@@ -33,7 +33,7 @@ After building, symlink or copy the `dist/` directory into your Foundry VTT
 modules directory:
 
 ```bash
-ln -s /path/to/skill-manager/dist /path/to/foundry-data/Data/modules/skill-manager
+ln -s /path/to/skill-manager/dist /path/to/foundry-data/Data/modules/twodsix-skill-manager
 ```
 
 ## License

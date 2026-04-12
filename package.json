@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "skill-manager",
+  "name": "twodsix-skill-manager",
   "version": "0.1.0",
   "description": "A Foundry VTT module for managing skills",
   "type": "module",
