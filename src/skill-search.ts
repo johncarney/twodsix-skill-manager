@@ -14,9 +14,11 @@ interface SkillResult {
 }
 
 let compendiumSkillsCache: Item[] | null = null;
+let cachedPackId: string | null = null;
 
 export function clearCompendiumCache(): void {
   compendiumSkillsCache = null;
+  cachedPackId = null;
 }
 
 export function injectSkillSearch(actor: Actor, html: HTMLElement): void {
@@ -224,10 +226,38 @@ async function addSkillToActor(
   await actor.createEmbeddedDocuments("Item", [itemData]);
 }
 
-async function loadCompendiumSkills(): Promise<Item[]> {
-  if (compendiumSkillsCache !== null) return compendiumSkillsCache;
+// Maps twodsix ruleset keys to the compendium pack that best matches them.
+// Rulesets with no obvious skill pack (Barbaric!, Other, Rider, Sword of Cepheus)
+// are omitted so they fall back to no default.
+const RULESET_PACK_MAP: Record<string, string> = {
+  CT: "twodsix.ct-items",
+  CE: "twodsix.ce-srd-items",
+  CEL: "twodsix.cepheus-light-items",
+  CLU: "twodsix.cepheus-light-items",
+  CEFTL: "twodsix.cepheus-faster-than-light-items",
+  CEATOM: "twodsix.cepheus-atom-items",
+  CEQ: "twodsix.cepheus-quantum-items",
+  CD: "twodsix.cepheus-deluxe-items",
+  CDEE: "twodsix.cepheus-deluxe-items",
+  AC: "twodsix.alpha-cephei-items",
+  CU: "twodsix.cepheus-universal-items",
+  MGT2E: "twodsix.twoe-skills",
+};
 
-  const packId = (game as Game).settings.get(MODULE_ID, "compendiumSource") as string;
+function getDefaultPackId(): string {
+  const ruleset = (game as Game).settings.get("twodsix", "ruleset") as string;
+  console.log(`Detected ruleset "${ruleset}", defaulting to pack "${RULESET_PACK_MAP[ruleset]}"`);
+  return RULESET_PACK_MAP[ruleset] ?? "";
+}
+
+async function loadCompendiumSkills(): Promise<Item[]> {
+  const configured = (game as Game).settings.get(MODULE_ID, "compendiumSource") as string;
+  const packId = configured || getDefaultPackId();
+
+  if (compendiumSkillsCache !== null && cachedPackId === packId) return compendiumSkillsCache;
+
+  cachedPackId = packId;
+
   if (!packId) {
     compendiumSkillsCache = [];
     return compendiumSkillsCache;

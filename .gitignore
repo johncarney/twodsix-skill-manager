@@ -9,3 +9,4 @@ dist/
 .env.*
 foundryconfig.json
 .claude/settings.json
+.claude/settings.local.json
