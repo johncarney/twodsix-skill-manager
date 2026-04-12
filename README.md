@@ -15,17 +15,17 @@ pnpm install
 
 ## Development
 
-| Command          | Description                               |
-| ---------------- | ----------------------------------------- |
-| `pnpm build`     | Production build to `dist/`               |
-| `pnpm build:dev` | Development build (unminified, sourcemaps) |
-| `pnpm watch`     | Rebuild on file changes                   |
-| `pnpm lint`      | Check for lint errors                     |
-| `pnpm lint:fix`  | Auto-fix lint errors                      |
-| `pnpm format`    | Check formatting                          |
-| `pnpm format:fix`| Auto-fix formatting                       |
-| `pnpm typecheck` | Run TypeScript type checking              |
-| `pnpm clean`     | Delete the `dist/` directory              |
+| Command           | Description                                |
+|-------------------|--------------------------------------------|
+| `pnpm build`      | Production build to `dist/`                |
+| `pnpm build:dev`  | Development build (unminified, sourcemaps) |
+| `pnpm watch`      | Rebuild on file changes                    |
+| `pnpm lint`       | Check for lint errors                      |
+| `pnpm lint:fix`   | Auto-fix lint errors                       |
+| `pnpm format`     | Check formatting                           |
+| `pnpm format:fix` | Auto-fix formatting                        |
+| `pnpm typecheck`  | Run TypeScript type checking               |
+| `pnpm clean`      | Delete the `dist/` directory               |
 
 ## Installing in Foundry
 
