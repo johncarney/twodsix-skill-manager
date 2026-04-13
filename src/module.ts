@@ -24,6 +24,29 @@ Hooks.once("init", () => {
     }
   });
 
+  Hooks.on("updateItem", (item: Item, changes: Record<string, unknown>) => {
+    if (item.type !== "skills") return;
+    if (!item.parent || item.parent.documentName !== "Actor") return;
+    if (item.getFlag("twodsix", "untrainedSkill")) return;
+
+    const systemChanges = changes.system as { value?: number } | undefined;
+    if (systemChanges?.value === undefined || systemChanges.value < 0) return;
+
+    const system = item.system as unknown as SkillSystem;
+    if (!system.groupLabel) return;
+
+    const actor = item.parent as Actor;
+    const siblings = getActorSkills(actor).filter((s) => {
+      const sys = s.system as unknown as SkillSystem;
+      return s.id !== item.id && sys.groupLabel === system.groupLabel && sys.value < 0;
+    });
+
+    if (siblings.length > 0) {
+      const updates = siblings.map((s) => ({ _id: s.id, "system.value": 0 }));
+      void actor.updateEmbeddedDocuments("Item", updates);
+    }
+  });
+
   (game as Game).settings.register(MODULE_ID, "compendiumSource", {
     name: "Skill Compendium Source",
     hint: "The compendium pack ID to search for skills (e.g. twodsix.ce-light-items).",
