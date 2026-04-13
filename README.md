@@ -53,6 +53,21 @@ If the twodsix system were changed to respect the value set during
 a conflict, thanks to the `systemChanges.value >= 0` guard. The duplication in
 `addSkillToActor()` could then also be removed.
 
+Rolling skills from the search list requires the skill to be an embedded item on
+the actor, because `doSkillTalentRoll()` is a method on Item and the roll dialog
+populates its skill dropdown from the actor's owned items. For unowned skills,
+`rollSkill()` temporarily adds the skill to the actor, performs the roll, then
+removes it in a `finally` block. The skill will be briefly visible on the actor
+sheet while the roll dialog is open.
+
+This workaround could be eliminated if the twodsix system supported rolling
+non-embedded skills. Specifically, `TwodsixRollSettings._throwDialog()` builds
+its `skillsList` from `skill.actor.getSkillNameList()` (line 255 of
+`TwodsixRollSettings.js`), which only returns embedded items. If it also included
+the skill being rolled when that skill is not in the actor's collection — e.g.,
+by merging `{ [skill.uuid]: skill.name }` into `skillsList` — then in-memory
+Item instances could be used directly without the add/roll/remove cycle.
+
 ## License
 
 MIT

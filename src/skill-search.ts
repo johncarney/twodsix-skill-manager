@@ -164,8 +164,14 @@ function renderResults(actor: Actor, results: SkillResult[], listEl: HTMLUListEl
     li.innerHTML = `
       <span class="skill-name${result.alreadyOwned ? " owned" : ""}">${result.name}</span>
       <span class="skill-bonus">${bonusStr}</span>
+      <a class="skill-roll-btn" title="Roll"><i class="fas fa-dice"></i></a>
       ${addOrCheck}
     `;
+
+    li.querySelector(".skill-roll-btn")!.addEventListener("click", (e) => {
+      e.preventDefault();
+      void rollSkill(actor, result);
+    });
 
     if (!result.alreadyOwned) {
       li.querySelector(".skill-add-btn")!.addEventListener("click", (e) => {
@@ -178,6 +184,43 @@ function renderResults(actor: Actor, results: SkillResult[], listEl: HTMLUListEl
   }
 
   listEl.style.display = "block";
+}
+
+async function rollSkill(actor: Actor, result: SkillResult): Promise<void> {
+  // If the actor owns this skill, roll the real item directly
+  const ownedSkill = getActorSkills(actor).find((s) => s.name === result.name);
+  if (ownedSkill) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (ownedSkill as any).doSkillTalentRoll(true);
+    return;
+  }
+
+  // For unowned skills, temporarily add to the actor, roll, then remove
+  const compendiumSkills = await loadCompendiumSkills();
+  const source =
+    compendiumSkills.find((s) => s.id === result.compendiumId) ?? compendiumSkills.find((s) => s.name === result.name);
+
+  if (!source) {
+    ui.notifications?.warn(`Could not find skill "${result.name}" in compendium.`);
+    return;
+  }
+
+  const actorSkills = getActorSkills(actor);
+  const system = source.system as unknown as SkillSystem;
+  const value = getGroupValue(system.groupLabel, actorSkills);
+
+  const itemData = source.toObject() as Record<string, unknown>;
+  (itemData.system as unknown as SkillSystem).value = value;
+
+  const created = (await actor.createEmbeddedDocuments("Item", [itemData])) as Item[];
+  const tempItem = created[0];
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (tempItem as any).doSkillTalentRoll(true);
+  } finally {
+    await actor.deleteEmbeddedDocuments("Item", [tempItem.id!]);
+  }
 }
 
 async function addSkillToActor(actor: Actor, result: SkillResult): Promise<void> {
