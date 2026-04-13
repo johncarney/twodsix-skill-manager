@@ -128,7 +128,8 @@ function calculateBonus(system: SkillSystem, skillName: string, actorSkills: Ite
 
   // If another skill in the same group is trained, effective level is 0
   // Otherwise untrained: -3 offset by JOAT level
-  return getGroupValue(system.groupLabel, actorSkills) + joatLevel;
+  const baseValue = getGroupValue(system.groupLabel, actorSkills);
+  return baseValue < 0 ? baseValue + joatLevel : baseValue;
 }
 
 function getJoatLevel(actor: Actor): number {
