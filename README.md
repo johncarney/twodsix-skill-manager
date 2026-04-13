@@ -36,6 +36,23 @@ modules directory:
 ln -s /path/to/skill-manager/dist /path/to/foundry-data/Data/modules/twodsix-skill-manager
 ```
 
+## Implementation notes
+
+Grouped skill value logic is handled in two places because the twodsix system
+behaves differently depending on how a skill is added:
+
+- **Search tool**: `addSkillToActor()` sets the correct group value before
+  creation via `createEmbeddedDocuments`. The twodsix system does not override
+  the value in this case.
+- **Drag-and-drop**: The twodsix system unconditionally sets the value to -3
+  (untrained) via an update after creation. A `preUpdateItem` hook intercepts
+  that update and applies the grouped skill logic.
+
+If the twodsix system were changed to respect the value set during
+`preCreateItem`, the `preUpdateItem` hook would become a no-op rather than cause
+a conflict, thanks to the `systemChanges.value >= 0` guard. The duplication in
+`addSkillToActor()` could then also be removed.
+
 ## License
 
 MIT

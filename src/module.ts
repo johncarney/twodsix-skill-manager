@@ -1,7 +1,28 @@
-import { MODULE_ID, injectSkillSearch, clearCompendiumCache } from "./skill-search.ts";
+import { MODULE_ID, injectSkillSearch, clearCompendiumCache, getActorSkills, getGroupValue } from "./skill-search.ts";
+import type { SkillSystem } from "./skill-search.ts";
 
 Hooks.once("init", () => {
   console.log(`${MODULE_ID} | Initializing module`);
+
+  Hooks.on("preUpdateItem", (item: Item, changes: Record<string, unknown>) => {
+    if (item.type !== "skills") return;
+    if (!item.parent || item.parent.documentName !== "Actor") return;
+    if (item.getFlag("twodsix", "untrainedSkill")) return;
+
+    const systemChanges = changes.system as { value?: number } | undefined;
+    if (systemChanges?.value === undefined || systemChanges.value >= 0) return;
+
+    const system = item.system as unknown as SkillSystem;
+    if (!system.groupLabel) return;
+
+    const actor = item.parent as Actor;
+    const actorSkills = getActorSkills(actor);
+    const value = getGroupValue(system.groupLabel, actorSkills);
+
+    if (value !== systemChanges.value) {
+      systemChanges.value = value;
+    }
+  });
 
   (game as Game).settings.register(MODULE_ID, "compendiumSource", {
     name: "Skill Compendium Source",

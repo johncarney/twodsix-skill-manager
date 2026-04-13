@@ -1,6 +1,6 @@
 export const MODULE_ID = "twodsix-skill-manager";
 
-interface SkillSystem {
+export interface SkillSystem {
   value: number;
   groupLabel: string;
 }
@@ -19,6 +19,21 @@ let cachedPackId: string | null = null;
 export function clearCompendiumCache(): void {
   compendiumSkillsCache = null;
   cachedPackId = null;
+}
+
+export function getActorSkills(actor: Actor): Item[] {
+  return actor.items.filter((i) => i.type === "skills" && !i.getFlag("twodsix", "untrainedSkill")) as unknown as Item[];
+}
+
+export function getGroupValue(groupLabel: string | undefined, actorSkills: Item[]): number {
+  if (groupLabel) {
+    const hasTrainedGroupSkill = actorSkills.some((s) => {
+      const sys = s.system as unknown as SkillSystem;
+      return sys.groupLabel === groupLabel && sys.value >= 0;
+    });
+    if (hasTrainedGroupSkill) return 0;
+  }
+  return -3;
 }
 
 export function injectSkillSearch(actor: Actor, html: HTMLElement): void {
@@ -57,11 +72,7 @@ export function injectSkillSearch(actor: Actor, html: HTMLElement): void {
   });
 }
 
-async function onSearchInput(
-  actor: Actor,
-  query: string,
-  listEl: HTMLUListElement,
-): Promise<void> {
+async function onSearchInput(actor: Actor, query: string, listEl: HTMLUListElement): Promise<void> {
   if (!query) {
     listEl.style.display = "none";
     return;
@@ -71,9 +82,7 @@ async function onSearchInput(
 }
 
 async function searchSkills(actor: Actor, query: string): Promise<SkillResult[]> {
-  const actorSkills = actor.items.filter(
-    (i) => i.type === "skills" && !i.getFlag("twodsix", "untrainedSkill"),
-  ) as unknown as Item[];
+  const actorSkills = getActorSkills(actor);
 
   const compendiumSkills = await loadCompendiumSkills();
   const joatLevel = getJoatLevel(actor);
@@ -109,12 +118,7 @@ async function searchSkills(actor: Actor, query: string): Promise<SkillResult[]>
   return results.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function calculateBonus(
-  system: SkillSystem,
-  skillName: string,
-  actorSkills: Item[],
-  joatLevel: number,
-): number {
+function calculateBonus(system: SkillSystem, skillName: string, actorSkills: Item[], joatLevel: number): number {
   // If actor already has this skill trained, show their level
   const actorSkill = actorSkills.find((s) => s.name === skillName);
   if (actorSkill) {
@@ -123,23 +127,12 @@ function calculateBonus(
   }
 
   // If another skill in the same group is trained, effective level is 0
-  const groupLabel = system.groupLabel;
-  if (groupLabel) {
-    const hasTrainedGroupSkill = actorSkills.some((s) => {
-      const sys = s.system as unknown as SkillSystem;
-      return sys.groupLabel === groupLabel && sys.value >= 0;
-    });
-    if (hasTrainedGroupSkill) return 0;
-  }
-
-  // Untrained: -3 offset by JOAT level
-  return -3 + joatLevel;
+  // Otherwise untrained: -3 offset by JOAT level
+  return getGroupValue(system.groupLabel, actorSkills) + joatLevel;
 }
 
 function getJoatLevel(actor: Actor): number {
-  const untrainedItem = actor.items.find((i) =>
-    i.getFlag("twodsix", "untrainedSkill"),
-  );
+  const untrainedItem = actor.items.find((i) => i.getFlag("twodsix", "untrainedSkill"));
   if (!untrainedItem) return 0;
   const system = untrainedItem.system as unknown as SkillSystem;
   const ruleset = (game as Game).settings.get("twodsix", "ruleset") as string;
@@ -148,11 +141,7 @@ function getJoatLevel(actor: Actor): number {
   return system.value - -3;
 }
 
-function renderResults(
-  actor: Actor,
-  results: SkillResult[],
-  listEl: HTMLUListElement,
-): void {
+function renderResults(actor: Actor, results: SkillResult[], listEl: HTMLUListElement): void {
   listEl.innerHTML = "";
 
   if (results.length === 0) {
@@ -191,34 +180,19 @@ function renderResults(
   listEl.style.display = "block";
 }
 
-async function addSkillToActor(
-  actor: Actor,
-  result: SkillResult,
-): Promise<void> {
+async function addSkillToActor(actor: Actor, result: SkillResult): Promise<void> {
   const compendiumSkills = await loadCompendiumSkills();
   const source =
-    compendiumSkills.find((s) => s.id === result.compendiumId) ??
-    compendiumSkills.find((s) => s.name === result.name);
+    compendiumSkills.find((s) => s.id === result.compendiumId) ?? compendiumSkills.find((s) => s.name === result.name);
 
   if (!source) {
     ui.notifications?.warn(`Could not find skill "${result.name}" in compendium.`);
     return;
   }
 
-  const actorSkills = actor.items.filter(
-    (i) => i.type === "skills" && !i.getFlag("twodsix", "untrainedSkill"),
-  ) as unknown as Item[];
-
+  const actorSkills = getActorSkills(actor);
   const system = source.system as unknown as SkillSystem;
-  let value = -3;
-
-  if (system.groupLabel) {
-    const hasTrainedGroupSkill = actorSkills.some((s) => {
-      const sys = s.system as unknown as SkillSystem;
-      return sys.groupLabel === system.groupLabel && sys.value >= 0;
-    });
-    if (hasTrainedGroupSkill) value = 0;
-  }
+  const value = getGroupValue(system.groupLabel, actorSkills);
 
   const itemData = source.toObject() as Record<string, unknown>;
   (itemData.system as unknown as SkillSystem).value = value;
