@@ -48,25 +48,40 @@ export function injectSkillSearch(actor: Actor, html: HTMLElement): void {
       <i class="fas fa-search skill-search-icon"></i>
       <input type="text" class="skill-search-input" placeholder="Search skills…" autocomplete="off" />
     </div>
-    <ul class="skill-search-results"></ul>
   `;
 
   skillsTab.appendChild(container);
 
   const input = container.querySelector<HTMLInputElement>(".skill-search-input")!;
-  const resultsList = container.querySelector<HTMLUListElement>(".skill-search-results")!;
+
+  // Append results list to document.body so it isn't clipped by ancestor overflow
+  const resultsList = document.createElement("ul");
+  resultsList.className = "skill-search-results";
   resultsList.style.display = "none";
+  document.body.appendChild(resultsList);
+
+  function positionResults(): void {
+    const rect = input.getBoundingClientRect();
+    resultsList.style.top = `${rect.bottom}px`;
+    resultsList.style.left = `${rect.left}px`;
+    resultsList.style.width = `${rect.width}px`;
+
+    const appWindow = html.closest<HTMLElement>(".app, .application");
+    const sheetZ = appWindow ? parseInt(getComputedStyle(appWindow).zIndex, 10) || 0 : 0;
+    resultsList.style.zIndex = `${sheetZ + 1}`;
+  }
 
   let debounceTimer: ReturnType<typeof setTimeout>;
   input.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       void onSearchInput(actor, input.value.trim(), resultsList);
+      positionResults();
     }, 200);
   });
 
   document.addEventListener("click", (e) => {
-    if (!container.contains(e.target as Node)) {
+    if (!container.contains(e.target as Node) && !resultsList.contains(e.target as Node)) {
       resultsList.style.display = "none";
     }
   });

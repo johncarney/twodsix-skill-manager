@@ -13,7 +13,7 @@
     "verified": "14"
   },
   "esmodules": ["module.js"],
-  "styles": [],
+  "styles": ["styles/skill-search.css"],
   "languages": [
     {
       "lang": "en",

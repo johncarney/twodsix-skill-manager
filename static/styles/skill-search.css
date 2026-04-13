@@ -1,0 +1,85 @@
+.skill-search {
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+.skill-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.skill-search-icon {
+  opacity: 0.6;
+}
+
+.skill-search-input {
+  flex: 1;
+}
+
+.skill-search-results {
+  position: fixed;
+  max-height: 240px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg, #1a1c23);
+  border: 1px solid var(--color-border-light-tertiary, #3d5a80);
+  border-top: none;
+}
+
+.skill-search-result {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: default;
+}
+
+.skill-search-result:hover {
+  background: var(--color-hover-bg, rgba(255, 255, 255, 0.08));
+}
+
+.skill-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-name.owned {
+  opacity: 0.7;
+}
+
+.skill-bonus {
+  min-width: 2rem;
+  text-align: right;
+  margin-right: 0.25rem;
+}
+
+.skill-roll-btn,
+.skill-add-btn,
+.skill-owned-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+}
+
+.skill-roll-btn,
+.skill-add-btn {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.skill-roll-btn:hover,
+.skill-add-btn:hover {
+  opacity: 1;
+}
+
+.skill-owned-indicator {
+  opacity: 0.5;
+}
