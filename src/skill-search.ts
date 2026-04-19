@@ -283,7 +283,7 @@ function getDefaultPackId(): string {
   return RULESET_PACK_MAP[ruleset] ?? "";
 }
 
-async function loadCompendiumSkills(): Promise<Item[]> {
+export async function loadCompendiumSkills(): Promise<Item[]> {
   const configured = (game as Game).settings.get(MODULE_ID, "compendiumSource") as string;
   const packId = configured || getDefaultPackId();
 

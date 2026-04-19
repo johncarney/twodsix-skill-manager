@@ -1,8 +1,11 @@
 import { MODULE_ID, injectSkillSearch, clearCompendiumCache, getActorSkills, getGroupValue } from "./skill-search.ts";
 import type { SkillSystem } from "./skill-search.ts";
+import { registerSkillRollEnricher } from "./skill-roll-enricher.ts";
 
 Hooks.once("init", () => {
   console.log(`${MODULE_ID} | Initializing module`);
+
+  registerSkillRollEnricher();
 
   Hooks.on("preUpdateItem", (item: Item, changes: Record<string, unknown>) => {
     if (item.type !== "skills") return;
